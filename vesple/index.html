@@ -80,9 +80,17 @@
       transition:background .15s,color .15s;
     }
     .btn-iscriviti:hover{background:var(--rosso);color:var(--bg-card)}
-    .nav{font-size:13px;color:var(--testo);text-align:center;margin-bottom:1rem}
+    .subtitolo{font-family:'Permanent Marker',cursive;font-size:clamp(12px,3vw,15px);
+      color:var(--rosso);opacity:.75;margin-top:.2rem}
+    .data-oggi{font-size:13px;font-weight:700;color:var(--rosso);margin-top:.35rem;
+      text-transform:capitalize}
+    .nav{font-size:13px;color:var(--testo);text-align:center;margin-bottom:1rem;
+      display:flex;align-items:center;justify-content:center;gap:10px}
     .nav a{color:var(--rosso);font-weight:700;text-decoration:none}
     .nav a:hover{text-decoration:underline}
+    .btn-reset{background:none;border:none;color:var(--rosso);font-weight:700;
+      font-size:13px;cursor:pointer;padding:0;font-family:inherit}
+    .btn-reset:hover{text-decoration:underline}
     .social-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;
       font-size:13px;font-weight:700;margin-bottom:1.2rem}
     .social-row a{color:var(--rosso);text-decoration:none}
@@ -94,6 +102,8 @@
 
 <header>
   <h1>Vesple</h1>
+  <p class="subtitolo">Il gioco di parole di Storie Pontederesi</p>
+  <p class="data-oggi" id="data-oggi"></p>
   <p class="tagline">Indovina la parola del giorno in 6 tentativi.<br>
     🟩 lettera giusta al posto giusto &nbsp;·&nbsp; 🟨 lettera giusta, posto sbagliato
   </p>
@@ -131,7 +141,7 @@
 <div class="nav">
   <a href="../">← Tutti i giochi</a>
   &nbsp;·&nbsp;
-  <a href="archivio.html">Archivio parole</a>
+  <button class="btn-reset" onclick="resetPartita()">↺ Ricomincia</button>
 </div>
 
 <div class="social-row">
@@ -189,6 +199,19 @@ let giocoFinito = false;
 const esitoRighe = [];
 
 const LS_KEY = `vesple_${GIORNO_N}`;
+
+// Data in italiano
+(function(){
+  const oggi = new Date();
+  const label = oggi.toLocaleDateString("it-IT", {weekday:"long", day:"numeric", month:"long", year:"numeric"});
+  document.getElementById("data-oggi").textContent = label;
+})();
+
+function resetPartita(){
+  if(!confirm("Vuoi ricominciare la parola di oggi dall'inizio?")) return;
+  localStorage.removeItem(LS_KEY);
+  location.reload();
+}
 
 const RIGHE_KB = [
   ["Q","W","E","R","T","Y","U","I","O","P"],
