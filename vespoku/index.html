@@ -43,6 +43,7 @@
 
     .cell.given{color:var(--rosso);font-weight:800}
     .cell.selected{background:#fce8e2}
+    .cell.same-num{background:#fde8b0}
     .cell.highlight{background:#fdf0ec}
     .cell.error{color:#c0392b}
     .cell.correct{color:var(--teal)}
@@ -118,7 +119,7 @@
   <a href="https://www.instagram.com/storiepontederesi" target="_blank">📸 @storiepontederesi</a>
   <a href="https://storiepontederesi.substack.com" target="_blank">✉ Newsletter</a>
 </div>
-<img src="../cruciverbapontederese/LogoStoriePontederesi_cruciverba.png" alt="Storie Pontederesi" class="logo">
+<img src="../cruciverba/LogoStoriePontederesi_cruciverba.png" alt="Storie Pontederesi" class="logo">
 
 <script>
 // ── SEEDED RNG (mulberry32) ────────────────────────────────────────────────
@@ -252,6 +253,7 @@ function renderBoard(){
         }
       }
       if(r===selR&&c===selC) cell.classList.add("selected");
+      else if(selR>=0&&selC>=0&&v!==0&&v===griglia[selR][selC]) cell.classList.add("same-num");
       else if(selR>=0&&selC>=0&&(r===selR||c===selC||
         (Math.floor(r/3)===Math.floor(selR/3)&&Math.floor(c/3)===Math.floor(selC/3))))
         cell.classList.add("highlight");
