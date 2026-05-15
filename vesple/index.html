@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vesple #1 — Rotatorie / Storie Pontederesi</title>
+  <meta name="description" content="Vesple: il Wordle di Pontedera. 6 tentativi per indovinare la parola legata al territorio. Allegato alla newsletter Rotatorie.">
+  <meta property="og:title" content="Vesple #1 — il Wordle di Pontedera">
+  <meta property="og:description" content="6 tentativi per indovinare una parola di 5 lettere legata a Pontedera.">
+  <meta property="og:image" content="../cruciverbapontederese/LogoStoriePontederesi_cruciverba.png">
+  <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --rosa:#f2c9be;--rosso:#8b1a2f;--teal:#5bbfad;
+      --giallo:#f5c842;--grigio:#c4a89a;--testo:#4a2020;
+      --bg-card:#fff4f0;
+    }
+    body{background:var(--rosa);font-family:'Inter',sans-serif;color:var(--testo);
+      min-height:100vh;display:flex;flex-direction:column;align-items:center;
+      padding:1.5rem 1rem 3rem;gap:0}
+    /* header */
+    header{text-align:center;margin-bottom:1rem}
+    h1{font-family:'Permanent Marker',cursive;font-size:clamp(30px,8vw,52px);
+      color:var(--rosso);text-transform:uppercase;line-height:1.1}
+    .ep{font-family:'Permanent Marker',cursive;font-size:14px;color:var(--rosso);opacity:.8;margin-top:.2rem}
+    /* griglia */
+    #grid{display:grid;grid-template-rows:repeat(6,1fr);gap:6px;margin:1rem 0}
+    .row{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+    .cell{
+      width:54px;height:54px;border:2.5px solid var(--rosso);border-radius:8px;
+      display:flex;align-items:center;justify-content:center;
+      font-family:'Permanent Marker',cursive;font-size:22px;color:var(--rosso);
+      background:var(--bg-card);
+      transition:background .3s,color .3s,border-color .3s,transform .1s;
+    }
+    .cell.pop{animation:pop .12s ease}
+    @keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.18)}100%{transform:scale(1)}}
+    .cell.shake{animation:shake .35s ease}
+    @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+    .cell.verde{background:var(--teal);border-color:var(--teal);color:#fff}
+    .cell.giallo{background:var(--giallo);border-color:var(--giallo);color:#5a3a00}
+    .cell.grigio{background:var(--grigio);border-color:var(--grigio);color:#fff}
+    /* tastiera */
+    #keyboard{display:flex;flex-direction:column;gap:7px;margin-bottom:1.2rem}
+    .kb-row{display:flex;gap:5px;justify-content:center}
+    .key{
+      min-width:32px;height:48px;padding:0 6px;border:2px solid var(--rosso);
+      border-radius:8px;background:var(--bg-card);color:var(--rosso);
+      font-family:'Permanent Marker',cursive;font-size:14px;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+      transition:background .2s,color .2s;user-select:none;
+    }
+    .key.wide{min-width:58px;font-size:12px}
+    .key:hover{background:var(--rosso);color:var(--bg-card)}
+    .key.verde{background:var(--teal);border-color:var(--teal);color:#fff}
+    .key.giallo{background:var(--giallo);border-color:var(--giallo);color:#5a3a00}
+    .key.grigio{background:var(--grigio);border-color:var(--grigio);color:#fff}
+    /* messaggio */
+    #msg{min-height:28px;font-weight:700;font-size:15px;color:var(--rosso);
+      text-align:center;margin-bottom:.6rem}
+    /* box condivisione */
+    #share-box{
+      display:none;background:var(--bg-card);border:2.5px solid var(--rosso);
+      border-radius:16px;padding:1.2rem 1.4rem;max-width:340px;width:100%;
+      text-align:center;margin-bottom:1.2rem;
+    }
+    #share-box h2{font-family:'Permanent Marker',cursive;color:var(--rosso);font-size:18px;margin-bottom:.6rem}
+    #emoji-grid{font-size:20px;line-height:1.5;margin-bottom:.8rem;letter-spacing:2px}
+    .btn{
+      display:inline-block;padding:.5rem 1.3rem;border-radius:999px;
+      border:2px solid var(--rosso);background:var(--rosso);color:var(--bg-card);
+      font-weight:700;font-size:13px;cursor:pointer;text-decoration:none;
+      transition:background .15s,color .15s;
+    }
+    .btn:hover{background:transparent;color:var(--rosso)}
+    .btn-ghost{background:transparent;color:var(--rosso);margin-left:8px}
+    .btn-ghost:hover{background:var(--rosso);color:var(--bg-card)}
+    /* nav */
+    .nav{font-size:13px;color:var(--testo);text-align:center;margin-bottom:1rem}
+    .nav a{color:var(--rosso);font-weight:700;text-decoration:none}
+    .nav a:hover{text-decoration:underline}
+    /* social */
+    .social-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;
+      font-size:13px;font-weight:700;margin-bottom:1.2rem}
+    .social-row a{color:var(--rosso);text-decoration:none}
+    .social-row a:hover{text-decoration:underline}
+    /* logo */
+    .logo{width:52px;opacity:.9}
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Vesple</h1>
+  <div class="ep">#1 — Newsletter Rotatorie</div>
+</header>
+
+<div id="msg"></div>
+
+<div id="grid"></div>
+
+<div id="keyboard">
+  <div class="kb-row" id="kb1"></div>
+  <div class="kb-row" id="kb2"></div>
+  <div class="kb-row" id="kb3"></div>
+</div>
+
+<div id="share-box">
+  <h2>📋 Condividi</h2>
+  <div id="emoji-grid"></div>
+  <button class="btn" id="copy-btn" onclick="copyShare()">📋 Copia</button>
+  <a class="btn btn-ghost" href="https://storiepontederesi.substack.com/subscribe" target="_blank">✉ Iscriviti</a>
+</div>
+
+<div class="nav">
+  <a href="../">← Tutti i giochi</a>
+  &nbsp;·&nbsp;
+  <a href="archivio.html">Archivio parole</a>
+</div>
+
+<div class="social-row">
+  <a href="https://www.instagram.com/storiepontederesi" target="_blank">📸 @storiepontederesi</a>
+  <a href="https://www.facebook.com/storiepontederesi" target="_blank">👍 Facebook</a>
+  <a href="https://storiepontederesi.substack.com/subscribe" target="_blank">✉ Iscriviti gratis</a>
+</div>
+
+<img src="../cruciverbapontederese/LogoStoriePontederesi_cruciverba.png" alt="Storie Pontederesi" class="logo">
+
+<script>
+// ══════════════════════════════════════════════════════════════════════════
+// LISTA PAROLE GIORNALIERE
+// Aggiungi qui le parole future (tutte 5 lettere, maiuscolo).
+// Il gioco parte dal giorno START_DATE e scorre la lista nell'ordine.
+// ══════════════════════════════════════════════════════════════════════════
+const PAROLE_GIORNALIERE = [
+  "VESPA","PONTE","BORGO","ARNO","TORRE",
+  "PIAVE","PRATO","COLLE","PORTA","DUOMO",
+  "CAMPO","VENTO","VERDE","FIUME","OLIVE",
+  "SAGRA","FIERA","TRENO","FESTA","VIGNA",
+  "ABETE","CIELO","CORSA","MARZO","PIANO",
+  "MILLE","MUSEO","PARCO","TERRA","MAPPA",
+  "BARCA","MONTE","NOTTE","PASSO","ROCCA",
+  "SCALA","SPIGA","SOGNO","VALLE","VOLTA",
+  "GRIDO","SALVO","SENSO","SPADA","VIOLA",
+  "FIORE","FONTE","LATTE","LEGNO","GRANO",
+];
+
+// Data di inizio del gioco (giorno 0 = prima parola)
+const START_DATE = new Date("2025-06-01T00:00:00");
+
+// ── CALCOLA PAROLA + EPISODIO DEL GIORNO ──────────────────────────────────
+function giornoCorrente() {
+  const oggi = new Date();
+  const ms = Date.UTC(oggi.getFullYear(), oggi.getMonth(), oggi.getDate())
+           - Date.UTC(START_DATE.getFullYear(), START_DATE.getMonth(), START_DATE.getDate());
+  return Math.max(0, Math.floor(ms / 86400000));
+}
+
+const GIORNO_N    = giornoCorrente();
+const NUMERO_EPISODIO = GIORNO_N + 1;
+const PAROLA_SEGRETA  = PAROLE_GIORNALIERE[GIORNO_N % PAROLE_GIORNALIERE.length];
+const URL_GIOCO = "https://giochi.storiepontederesi.it/vesple/";
+
+// Aggiorna titolo e sottotitolo con il numero episodio
+document.querySelector("h1").textContent = "Vesple";
+document.querySelector(".ep").textContent = `#${NUMERO_EPISODIO} — Newsletter Rotatorie`;
+
+// ── VOCABOLARIO accettato — caricato da parole.txt (7.800+ parole) ────────
+let VOCABOLARIO = new Set([PAROLA_SEGRETA]);
+
+// ── STATO ─────────────────────────────────────────────────────────────────
+const MAX_RIGHE = 6;
+const PAROLA = PAROLA_SEGRETA.toUpperCase();
+let rigaCorrente = 0;
+let tentativoCorrente = [];
+let giocoFinito = false;
+const esitoRighe = [];
+
+// ── CHIAVE localStorage (cambia ogni giorno) ───────────────────────────────
+const LS_KEY = `vesple_${GIORNO_N}`;
+
+// ── MESSAGGI ESITO ─────────────────────────────────────────────────────────
+const MSG_VITTORIA = [
+  "Incredibile! Sei una leggenda pontederese! 🛵",
+  "Che fiuto! Ci sei arrivato quasi subito!",
+  "Bravo! Sei un vero conoscitore del territorio!",
+  "Bravo! Sei un vero conoscitore del territorio!",
+  "Ce l'hai fatta, per un pelo! 😅",
+  "Ce l'hai fatta, per un pelo! 😅"
+];
+const MSG_SCONFITTA = `Un ti riesce stavolta... La parola era <strong>${PAROLA}</strong>. Riprova domani! 🤫`;
+
+// ── TASTIERA ───────────────────────────────────────────────────────────────
+const RIGHE_KB = [
+  ["Q","W","E","R","T","Y","U","I","O","P"],
+  ["A","S","D","F","G","H","J","K","L"],
+  ["INVIO","Z","X","C","V","B","N","M","CANC"]
+];
+const keyEls = {};
+
+function buildKeyboard(){
+  RIGHE_KB.forEach((riga, i) => {
+    const row = document.getElementById(`kb${i+1}`);
+    riga.forEach(k => {
+      const btn = document.createElement("button");
+      btn.textContent = k;
+      btn.className = "key" + (k.length > 1 ? " wide" : "");
+      btn.dataset.key = k;
+      btn.addEventListener("click", () => handleKey(k));
+      row.appendChild(btn);
+      keyEls[k] = btn;
+    });
+  });
+}
+
+// ── GRIGLIA ────────────────────────────────────────────────────────────────
+let cellEls = [];
+
+function buildGrid(){
+  const grid = document.getElementById("grid");
+  for(let r = 0; r < MAX_RIGHE; r++){
+    const row = document.createElement("div");
+    row.className = "row";
+    cellEls[r] = [];
+    for(let c = 0; c < 5; c++){
+      const cell = document.createElement("div");
+      cell.className = "cell";
+      row.appendChild(cell);
+      cellEls[r][c] = cell;
+    }
+    grid.appendChild(row);
+  }
+}
+
+// ── LOGICA ─────────────────────────────────────────────────────────────────
+function handleKey(k){
+  if(giocoFinito) return;
+  if(k === "CANC"){
+    if(tentativoCorrente.length > 0){
+      tentativoCorrente.pop();
+      aggiornaRiga();
+    }
+  } else if(k === "INVIO"){
+    conferma();
+  } else if(/^[A-Z]$/.test(k) && tentativoCorrente.length < 5){
+    tentativoCorrente.push(k);
+    const cell = cellEls[rigaCorrente][tentativoCorrente.length - 1];
+    cell.classList.add("pop");
+    cell.addEventListener("animationend", () => cell.classList.remove("pop"), {once:true});
+    aggiornaRiga();
+  }
+}
+
+function aggiornaRiga(){
+  for(let c = 0; c < 5; c++){
+    cellEls[rigaCorrente][c].textContent = tentativoCorrente[c] || "";
+  }
+}
+
+function conferma(){
+  if(tentativoCorrente.length < 5){
+    shakeSha();
+    setMsg("Parola troppo corta!");
+    return;
+  }
+  const parola = tentativoCorrente.join("");
+  if(!VOCABOLARIO.has(parola)){
+    shakeSha();
+    setMsg("Parola non riconosciuta!");
+    return;
+  }
+  setMsg("");
+  const risultato = valuta(parola);
+  esitoRighe.push(risultato);
+  colora(rigaCorrente, risultato);
+  aggiornaKeyboard(parola, risultato);
+  rigaCorrente++;
+
+  if(parola === PAROLA){
+    giocoFinito = true;
+    setTimeout(() => {
+      setMsg(MSG_VITTORIA[rigaCorrente - 1]);
+      mostraCondivisione();
+      salvaStato();
+    }, 700);
+  } else if(rigaCorrente === MAX_RIGHE){
+    giocoFinito = true;
+    setTimeout(() => {
+      setMsg(MSG_SCONFITTA);
+      mostraCondivisione();
+      salvaStato();
+    }, 700);
+  } else {
+    salvaStato();
+  }
+  tentativoCorrente = [];
+}
+
+function valuta(tentativo){
+  const res = Array(5).fill("grigio");
+  const pLetters = PAROLA.split("");
+  const tLetters = tentativo.split("");
+  tLetters.forEach((l,i) => {
+    if(l === pLetters[i]){ res[i] = "verde"; pLetters[i] = null; tLetters[i] = null; }
+  });
+  tLetters.forEach((l,i) => {
+    if(l === null) return;
+    const idx = pLetters.indexOf(l);
+    if(idx !== -1){ res[i] = "giallo"; pLetters[idx] = null; }
+  });
+  return res;
+}
+
+function colora(r, risultato){
+  risultato.forEach((stato, c) => {
+    setTimeout(() => {
+      cellEls[r][c].classList.add(stato);
+    }, c * 120);
+  });
+}
+
+function aggiornaKeyboard(parola, risultato){
+  const priorità = {verde:3, giallo:2, grigio:1};
+  risultato.forEach((stato, i) => {
+    const k = parola[i];
+    const btn = keyEls[k];
+    if(!btn) return;
+    const attuale = btn.dataset.stato || "";
+    if((priorità[stato] || 0) > (priorità[attuale] || 0)){
+      btn.classList.remove("verde","giallo","grigio");
+      btn.classList.add(stato);
+      btn.dataset.stato = stato;
+    }
+  });
+}
+
+function shakeSha(){
+  cellEls[rigaCorrente].forEach(c => {
+    c.classList.add("shake");
+    c.addEventListener("animationend", () => c.classList.remove("shake"), {once:true});
+  });
+}
+
+function setMsg(t){ document.getElementById("msg").innerHTML = t; }
+
+// ── CONDIVISIONE ───────────────────────────────────────────────────────────
+const EMOJI = {verde:"🟩", giallo:"🟨", grigio:"⬜"};
+
+function mostraCondivisione(){
+  const box = document.getElementById("share-box");
+  box.style.display = "block";
+  const vinto = esitoRighe.at(-1).every(s => s === "verde");
+  const score = vinto ? esitoRighe.length : "X";
+  const righe = esitoRighe.map(r => r.map(s => EMOJI[s]).join("")).join("\n");
+  document.getElementById("emoji-grid").textContent = righe;
+  window._shareText =
+    `Vesple #${NUMERO_EPISODIO} ${score}/6 — Rotatorie / Storie Pontederesi\n${righe}\nGioca anche tu: ${URL_GIOCO}`;
+}
+
+function copyShare(){
+  navigator.clipboard.writeText(window._shareText).then(() => {
+    const btn = document.getElementById("copy-btn");
+    btn.textContent = "✅ Copiato!";
+    setTimeout(() => btn.textContent = "📋 Copia", 2000);
+  });
+}
+
+// ── LOCALSTORAGE — salva e ripristina lo stato ────────────────────────────
+function salvaStato(){
+  const stato = {
+    tentativi: esitoRighe,
+    parole:    [],   // ricostruiamo le parole dalla griglia
+    finito:    giocoFinito,
+    riga:      rigaCorrente
+  };
+  // salva il testo di ogni cella già giocata
+  for(let r = 0; r < rigaCorrente; r++){
+    stato.parole[r] = Array.from({length:5}, (_,c) => cellEls[r][c].textContent);
+  }
+  localStorage.setItem(LS_KEY, JSON.stringify(stato));
+}
+
+function ripristinaStato(){
+  const raw = localStorage.getItem(LS_KEY);
+  if(!raw) return;
+  try {
+    const stato = JSON.parse(raw);
+    stato.tentativi.forEach((risultato, r) => {
+      const parola = stato.parole[r].join("");
+      // scrivi lettere
+      stato.parole[r].forEach((l, c) => { cellEls[r][c].textContent = l; });
+      // colora subito (senza animazione)
+      risultato.forEach((s, c) => cellEls[r][c].classList.add(s));
+      // aggiorna tastiera
+      aggiornaKeyboard(parola, risultato);
+      esitoRighe.push(risultato);
+    });
+    rigaCorrente = stato.riga;
+    if(stato.finito){
+      giocoFinito = true;
+      const vinto = stato.tentativi.at(-1).every(s => s === "verde");
+      setMsg(vinto ? MSG_VITTORIA[rigaCorrente - 1] : MSG_SCONFITTA);
+      mostraCondivisione();
+    }
+  } catch(e){ localStorage.removeItem(LS_KEY); }
+}
+
+// ── TASTIERA FISICA ────────────────────────────────────────────────────────
+document.addEventListener("keydown", e => {
+  if(e.ctrlKey || e.metaKey || e.altKey) return;
+  if(e.key === "Enter") handleKey("INVIO");
+  else if(e.key === "Backspace") handleKey("CANC");
+  else if(/^[a-zA-Z]$/.test(e.key)) handleKey(e.key.toUpperCase());
+});
+
+// ── INIT ───────────────────────────────────────────────────────────────────
+buildGrid();
+buildKeyboard();
+ripristinaStato(); // ripristina partita in corso se esiste
+
+// Carica il vocabolario da file esterno
+fetch("parole.txt")
+  .then(r => r.text())
+  .then(testo => {
+    const parole = testo
+      .split("\n")
+      .map(p => p.trim().toUpperCase())
+      .filter(p => p.length === 5);
+    VOCABOLARIO = new Set(parole);
+    VOCABOLARIO.add(PAROLA_SEGRETA);
+    console.log(`Vocabolario caricato: ${VOCABOLARIO.size} parole`);
+  })
+  .catch(() => {
+    console.warn("parole.txt non trovato — vocabolario di fallback attivo");
+  });
+</script>
+</body>
+</html>

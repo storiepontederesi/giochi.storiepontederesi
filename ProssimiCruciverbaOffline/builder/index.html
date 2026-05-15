@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cruciverba Builder — Storie Pontederesi</title>
+<link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#f2c9be;font-family:sans-serif;min-height:100vh;padding:1.5rem;display:flex;flex-direction:column;align-items:center;gap:1rem}
+h1{font-family:'Permanent Marker',cursive;color:#8b1a2f;font-size:clamp(20px,4vw,30px);text-align:center}
+.subtitle{color:#4a2020;font-size:13px;text-align:center;max-width:500px;line-height:1.5}
+.layout{display:flex;gap:1.5rem;align-items:flex-start;flex-wrap:wrap;justify-content:center}
+
+/* Grid */
+.grid-wrap{background:#fff4f0;border:2px solid #8b1a2f;border-radius:16px;padding:1rem}
+.grid{display:inline-grid;gap:1px;background:#ccc;border:1px solid #ccc}
+.cell{width:36px;height:36px;background:#f0ede8;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;font-size:13px;font-weight:700;color:#1a1a1a;transition:background .1s;user-select:none}
+.cell:hover{background:#d4efe9}
+.cell.active{background:#5bbfad}
+.cell-num{position:absolute;top:1px;left:2px;font-size:7px;font-weight:700;color:#8b1a2f;line-height:1;pointer-events:none}
+
+/* Side */
+.side{width:260px;display:flex;flex-direction:column;gap:.8rem}
+.panel{background:#fff4f0;border:2px solid #8b1a2f;border-radius:16px;padding:1rem}
+.panel-title{font-family:'Permanent Marker',cursive;color:#8b1a2f;font-size:14px;margin-bottom:.6rem}
+.ep-row{display:flex;align-items:center;gap:.5rem}
+.ep-label{font-size:13px;color:#4a2020;font-weight:600;white-space:nowrap}
+.ep-input{width:60px;border:2px solid #8b1a2f;border-radius:8px;padding:5px 8px;font-size:15px;font-weight:700;font-family:'Permanent Marker',cursive;color:#8b1a2f;text-align:center;outline:none}
+.ep-input:focus{border-color:#5bbfad}
+.ep-input.error{border-color:#c00;background:#fff0f0}
+.word-item{background:#f2c9be;border-radius:8px;padding:.4rem .6rem;font-size:12px;margin-bottom:.4rem}
+.word-item-top{display:flex;align-items:center;gap:.4rem}
+.word-num{font-family:'Permanent Marker',cursive;color:#8b1a2f;font-size:12px;min-width:16px}
+.word-text{flex:1;font-weight:700;font-size:13px}
+.word-dir{font-size:10px;color:#4a2020;opacity:.7}
+.word-del{background:none;border:none;color:#8b1a2f;cursor:pointer;font-size:13px;line-height:1;padding:0 2px}
+.word-del:hover{color:#6e1424}
+.word-def{font-size:11px;color:#4a2020;font-style:italic;margin-top:2px;padding-left:18px;line-height:1.3}
+.empty-note{font-size:12px;color:#8b1a2f;font-style:italic;opacity:.7}
+.hint{font-size:11px;color:#4a2020;line-height:1.5;margin-top:.5rem;opacity:.8}
+.btn-primary{background:#8b1a2f;color:#f2c9be;border:none;font-family:'Permanent Marker',cursive;font-size:14px;padding:10px 20px;border-radius:20px;cursor:pointer;width:100%}
+.btn-primary:hover{background:#6e1424}
+.btn-secondary{background:transparent;color:#8b1a2f;border:2px dashed #8b1a2f;font-family:'Permanent Marker',cursive;font-size:13px;padding:8px 16px;border-radius:20px;cursor:pointer;width:100%}
+.btn-secondary:hover{background:#8b1a2f;color:#f2c9be}
+
+/* Popup */
+.popup{display:none;position:fixed;background:#fff;border:2px solid #8b1a2f;border-radius:14px;padding:1rem;box-shadow:0 4px 24px rgba(0,0,0,.18);z-index:100;width:240px}
+.popup.visible{display:block}
+.popup-title{font-family:'Permanent Marker',cursive;color:#8b1a2f;font-size:13px;margin-bottom:.5rem}
+.field-label{font-size:11px;font-weight:700;color:#4a2020;margin-bottom:3px}
+.popup input[type=text]{width:100%;border:2px solid #8b1a2f;border-radius:8px;padding:6px 10px;font-size:14px;font-weight:700;outline:none;margin-bottom:.5rem}
+.popup #wordInput{text-transform:uppercase;letter-spacing:1px;font-size:15px}
+.popup input:focus{border-color:#5bbfad}
+.dir-row{display:flex;gap:.4rem;margin-bottom:.5rem}
+.dir-btn{flex:1;padding:5px;border:2px solid #8b1a2f;background:transparent;border-radius:8px;cursor:pointer;font-family:'Permanent Marker',cursive;font-size:11px;color:#8b1a2f}
+.dir-btn.on{background:#8b1a2f;color:#f2c9be}
+.popup-error{font-size:11px;color:#c00;min-height:14px;margin-bottom:.3rem}
+.popup-btns{display:flex;gap:.4rem}
+.popup-btns button{flex:1;padding:7px;border-radius:8px;cursor:pointer;font-size:12px;font-family:'Permanent Marker',cursive;border:none}
+.btn-add{background:#8b1a2f;color:#f2c9be}
+.btn-add:hover{background:#6e1424}
+.btn-cancel{background:#f2c9be;color:#8b1a2f;border:2px solid #8b1a2f!important}
+
+/* Output */
+.output{display:none;background:#fff4f0;border:2px solid #8b1a2f;border-radius:16px;padding:1.4rem;max-width:580px;width:100%}
+.output.visible{display:block}
+.output-title{font-family:'Permanent Marker',cursive;color:#8b1a2f;font-size:18px;text-align:center;margin-bottom:1rem}
+.btn-download{display:block;width:100%;background:#1a5c1a;color:#fff;border:none;font-family:'Permanent Marker',cursive;font-size:18px;padding:14px 20px;border-radius:20px;cursor:pointer;margin-bottom:1.2rem;text-align:center}
+.btn-download:hover{background:#144d14}
+.steps{font-size:13px;color:#4a2020;line-height:2;margin-bottom:1rem}
+.steps strong{color:#8b1a2f}
+.divider{border:none;border-top:2px dashed #c4758a;margin:1rem 0}
+.card-label-txt{font-size:13px;color:#4a2020;font-weight:600;margin-bottom:.4rem}
+.card-code{background:#1a1a1a;color:#8de0d0;font-size:12px;padding:.7rem .9rem;border-radius:10px;font-family:monospace;white-space:pre;margin-bottom:.5rem;overflow-x:auto}
+.copy-row{display:flex;align-items:center;gap:.8rem}
+.btn-copy{background:#5bbfad;color:#fff;border:none;font-family:'Permanent Marker',cursive;font-size:12px;padding:6px 14px;border-radius:20px;cursor:pointer}
+.btn-copy:hover{background:#3a9a8d}
+.copy-ok{font-size:11px;color:#1a5c1a;font-style:italic}
+</style>
+</head>
+<body>
+
+<h1>Cruciverba Builder</h1>
+<p class="subtitle">Clicca una cella per posizionare una parola. <strong>Tab</strong> cambia direzione, <strong>Invio</strong> conferma.</p>
+
+<div class="layout">
+  <div class="grid-wrap">
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <div class="side">
+    <div class="panel">
+      <div class="panel-title">Episodio</div>
+      <div class="ep-row">
+        <span class="ep-label">Numero #</span>
+        <input type="number" class="ep-input" id="epNum" min="1" placeholder="?">
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Parole</div>
+      <div id="wordList"><span class="empty-note">Clicca una cella per iniziare.</span></div>
+      <p class="hint">Le parole che si incrociano devono condividere la stessa lettera nella cella comune.</p>
+    </div>
+
+    <button class="btn-primary" onclick="generateAndDownload()">⚡ Genera e scarica</button>
+    <button class="btn-secondary" onclick="clearAll()">✕ Ricomincia</button>
+  </div>
+</div>
+
+<!-- Output -->
+<div class="output" id="output">
+  <div class="output-title" id="outputTitle"></div>
+  <button class="btn-download" id="btnDownload">📥 Scarica index.html</button>
+  <div class="steps" id="outputSteps"></div>
+  <hr class="divider">
+  <div class="card-label-txt">Aggiungi questa card nell'archivio (<code>index.html</code>):</div>
+  <div class="card-code" id="cardCode"></div>
+  <div class="copy-row">
+    <button class="btn-copy" onclick="copyCard()">📋 Copia card</button>
+    <span class="copy-ok" id="copyOk"></span>
+  </div>
+</div>
+
+<!-- Popup -->
+<div class="popup" id="popup">
+  <div class="popup-title" id="popupTitle">Aggiungi parola</div>
+  <div class="field-label">Parola</div>
+  <input type="text" id="wordInput" placeholder="PAROLA" maxlength="15" autocomplete="off" spellcheck="false">
+  <div class="dir-row">
+    <button class="dir-btn on" id="dirH" onclick="setDir('H')">→ Orizzontale</button>
+    <button class="dir-btn" id="dirV" onclick="setDir('V')">↓ Verticale</button>
+  </div>
+  <div class="field-label">Definizione</div>
+  <input type="text" id="defInput" placeholder="es. Il fiume di Pontedera" maxlength="120" autocomplete="off">
+  <div class="popup-error" id="popupErr"></div>
+  <div class="popup-btns">
+    <button class="btn-add" onclick="confirmAdd()">Aggiungi</button>
+    <button class="btn-cancel" onclick="closePopup()">Annulla</button>
+  </div>
+</div>
+
+<script>
+const ROWS = 12, COLS = 12;
+let words = [];
+let pendingCell = null;
+let dir = 'H';
+let lastFileContent = '';
+let lastEp = 0;
+
+// Build grid
+const gridEl = document.getElementById('grid');
+gridEl.style.gridTemplateColumns = `repeat(${COLS},36px)`;
+for(let r = 0; r < ROWS; r++){
+  for(let c = 0; c < COLS; c++){
+    const div = document.createElement('div');
+    div.className = 'cell';
+    div.dataset.r = r; div.dataset.c = c;
+    div.addEventListener('click', e => openPopup(r, c, e));
+    gridEl.appendChild(div);
+  }
+}
+
+function openPopup(r, c, e){
+  pendingCell = {r, c};
+  document.getElementById('wordInput').value = '';
+  document.getElementById('defInput').value = '';
+  document.getElementById('popupErr').textContent = '';
+  document.getElementById('popupTitle').textContent = `Cella (riga ${r+1}, col ${c+1})`;
+  const p = document.getElementById('popup');
+  p.classList.add('visible');
+  const W = 244, H = 255;
+  let left = e.clientX + 12, top = e.clientY + 12;
+  if(left + W > window.innerWidth - 8) left = e.clientX - W - 12;
+  if(top + H > window.innerHeight - 8) top = e.clientY - H - 12;
+  p.style.left = Math.max(8, left) + 'px';
+  p.style.top = Math.max(8, top) + 'px';
+  setTimeout(() => document.getElementById('wordInput').focus(), 30);
+}
+
+function closePopup(){
+  document.getElementById('popup').classList.remove('visible');
+  pendingCell = null;
+}
+
+function setDir(d){
+  dir = d;
+  document.getElementById('dirH').classList.toggle('on', d === 'H');
+  document.getElementById('dirV').classList.toggle('on', d === 'V');
+}
+
+document.getElementById('wordInput').addEventListener('keydown', e => {
+  if(e.key === 'Enter'){ e.preventDefault(); document.getElementById('defInput').focus(); }
+  if(e.key === 'Escape') closePopup();
+  if(e.key === 'Tab'){ e.preventDefault(); setDir(dir === 'H' ? 'V' : 'H'); }
+});
+document.getElementById('defInput').addEventListener('keydown', e => {
+  if(e.key === 'Enter') confirmAdd();
+  if(e.key === 'Escape') closePopup();
+});
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closePopup(); });
+document.addEventListener('click', e => {
+  const p = document.getElementById('popup');
+  if(p.classList.contains('visible') && !p.contains(e.target) && !e.target.closest('.cell')) closePopup();
+});
+
+function confirmAdd(){
+  const word = document.getElementById('wordInput').value.trim().toUpperCase();
+  const def  = document.getElementById('defInput').value.trim();
+  const errEl = document.getElementById('popupErr');
+  if(!word){ errEl.textContent = 'Scrivi la parola.'; document.getElementById('wordInput').focus(); return; }
+  if(!/^[A-Z]+$/.test(word)){ errEl.textContent = 'Solo lettere (no spazi, no apostrofi).'; return; }
+  if(!def){ errEl.textContent = 'Scrivi la definizione.'; document.getElementById('defInput').focus(); return; }
+  const {r, c} = pendingCell;
+  const endR = dir === 'V' ? r + word.length - 1 : r;
+  const endC = dir === 'H' ? c + word.length - 1 : c;
+  if(endR >= ROWS || endC >= COLS){ errEl.textContent = `La parola esce dalla griglia (${word.length} lettere).`; return; }
+  for(let i = 0; i < word.length; i++){
+    const cr = dir === 'H' ? r : r + i;
+    const cc = dir === 'H' ? c + i : c;
+    const ex = getLetterAt(cr, cc);
+    if(ex && ex !== word[i]){ errEl.textContent = `Conflitto: cella comune ha "${ex}", non "${word[i]}".`; return; }
+  }
+  words.push({word, row: r, col: c, dir, num: words.length + 1, def});
+  closePopup();
+  render();
+}
+
+function getLetterAt(r, c){
+  for(const w of words)
+    for(let i = 0; i < w.word.length; i++){
+      const wr = w.dir === 'H' ? w.row : w.row + i;
+      const wc = w.dir === 'H' ? w.col + i : w.col;
+      if(wr === r && wc === c) return w.word[i];
+    }
+  return null;
+}
+
+function getNumAt(r, c){
+  for(const w of words) if(w.row === r && w.col === c) return w.num;
+  return null;
+}
+
+function render(){
+  gridEl.querySelectorAll('.cell').forEach(cell => {
+    const r = +cell.dataset.r, c = +cell.dataset.c;
+    const letter = getLetterAt(r, c);
+    const num = getNumAt(r, c);
+    cell.className = 'cell' + (letter ? ' active' : '');
+    cell.innerHTML = '';
+    if(num){ const n = document.createElement('span'); n.className = 'cell-num'; n.textContent = num; cell.appendChild(n); }
+    if(letter) cell.appendChild(document.createTextNode(letter));
+  });
+  const listEl = document.getElementById('wordList');
+  if(!words.length){
+    listEl.innerHTML = '<span class="empty-note">Clicca una cella per iniziare.</span>';
+  } else {
+    listEl.innerHTML = words.map((w, i) => `
+      <div class="word-item">
+        <div class="word-item-top">
+          <span class="word-num">${w.num}.</span>
+          <span class="word-text">${w.word}</span>
+          <span class="word-dir">${w.dir === 'H' ? '→' : '↓'}</span>
+          <button class="word-del" onclick="removeWord(${i})">✕</button>
+        </div>
+        <div class="word-def">${esc(w.def)}</div>
+      </div>`).join('');
+  }
+  document.getElementById('output').classList.remove('visible');
+}
+
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function removeWord(idx){
+  words.splice(idx, 1);
+  words.forEach((w, i) => w.num = i + 1);
+  render();
+}
+
+function clearAll(){
+  if(words.length && !confirm('Vuoi cancellare tutto?')) return;
+  words = [];
+  document.getElementById('epNum').value = '';
+  document.getElementById('epNum').classList.remove('error');
+  render();
+}
+
+function generateAndDownload(){
+  const epVal = document.getElementById('epNum').value.trim();
+  const epEl  = document.getElementById('epNum');
+  if(!epVal || isNaN(+epVal) || +epVal < 1){
+    epEl.classList.add('error'); epEl.focus(); return;
+  }
+  epEl.classList.remove('error');
+  if(!words.length){ alert('Aggiungi almeno una parola prima di generare.'); return; }
+
+  const ep = +epVal;
+  const epStr = String(ep).padStart(2, '0');
+
+  // Bounding box
+  let minR = Infinity, minC = Infinity, maxR = 0, maxC = 0;
+  for(const w of words){
+    const endR = w.dir === 'V' ? w.row + w.word.length - 1 : w.row;
+    const endC = w.dir === 'H' ? w.col + w.word.length - 1 : w.col;
+    minR = Math.min(minR, w.row); minC = Math.min(minC, w.col);
+    maxR = Math.max(maxR, endR); maxC = Math.max(maxC, endC);
+  }
+  const rows = maxR - minR + 1, cols = maxC - minC + 1;
+
+  const wordsLines = words.map(w =>
+    `    {word:"${w.word}", row:${w.row - minR}, col:${w.col - minC}, dir:"${w.dir}", num:${w.num}},`
+  ).join('\n');
+
+  const horizontal = words.filter(w => w.dir === 'H');
+  const vertical   = words.filter(w => w.dir === 'V');
+  const clueItems  = ws => ws.map(w =>
+    `    <div class="clue-item"><span class="clue-num">${w.num}.</span> ${w.def}</div>`
+  ).join('\n');
+
+  const cluesHTML =
+`<div class="clues">
+  <div class="clue-section">
+    <h3>Orizzontali</h3>
+${clueItems(horizontal)}
+  </div>
+  <div class="clue-section">
+    <h3>Verticali</h3>
+${clueItems(vertical)}
+  </div>
+</div>`;
+
+  // Nav links to previous episodes
+  let navLinks = '';
+  for(let i = 1; i < ep; i++){
+    const prev = String(i).padStart(2, '0');
+    navLinks += (navLinks ? ' &nbsp;|&nbsp; ' : '← ') + `<a href="../${prev}/">Episodio #${i}</a>`;
+  }
+  navLinks += (navLinks ? ' &nbsp;|&nbsp; ' : '') + `<a href="../">Tutti gli episodi</a>`;
+
+  const jsBlock =
+`initCruciverba({
+  rows: ${rows},
+  cols: ${cols},
+  episodeNum: ${ep},
+  words: [
+${wordsLines}
+  ]
+});`;
+
+  const fullHTML =
+`<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta property="og:title" content="Il Cruciverba Pontederese #${ep}">
+<meta property="og:description" content="Metti alla prova la tua conoscenza di Pontedera con il cruciverba di Rotatorie!">
+<meta property="og:image" content="https://storiepontederesi.github.io/cruciverbapontederese/LogoStoriePontederesi_cruciverba.png">
+<meta property="og:type" content="website">
+<title>Il Cruciverba Pontederese #${ep}</title>
+<link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../cruciverba.css">
+</head>
+<body>
+
+<h1>Il Cruciverba<br>Pontederese</h1>
+<div class="numero">#${ep}</div>
+
+<div class="intro">
+  Il cruciverba di <strong>Rotatorie</strong>, la newsletter di <em>Storie Pontederesi</em> su tutto ciò che ruota attorno a Pontedera.<br><br>
+  Non sei ancora iscritto? <a href="https://storiepontederesi.substack.com/subscribe" target="_blank">Iscriviti gratis →</a>
+</div>
+
+<div id="grid" class="cw-grid"></div>
+
+<div class="btn-row">
+  <div class="btn-wrap">
+    <button class="btn-check" onclick="check()">✔ Verifica</button>
+    <span class="btn-label">controlla le risposte</span>
+  </div>
+  <div class="btn-wrap">
+    <button class="btn-reset" onclick="reset()">↺ Ricomincia</button>
+    <span class="btn-label">cancella tutto</span>
+  </div>
+</div>
+
+<p class="result-msg" id="msg"></p>
+
+<div class="share-box" id="shareBox">
+  <div class="share-title">Condividi il risultato!</div>
+  <div class="share-btns">
+    <a class="share-btn sh-wa" href="#" onclick="shareWA();return false;">💬 WhatsApp</a>
+    <button class="share-btn sh-ig" onclick="shareIG()">📸 Instagram</button>
+    <a class="share-btn sh-fb" href="#" onclick="shareFB();return false;">👍 Facebook</a>
+    <button class="share-btn sh-copy" onclick="copyText()">📋 Copia testo</button>
+  </div>
+  <div class="copied-msg" id="copiedMsg"></div>
+</div>
+
+${cluesHTML}
+
+<div class="reveal-section">
+  <p class="reveal-hint">«'un ti riesce?»<br>Niente paura... guarda la soluzione — non lo diciamo a nessuno. 🤫</p>
+  <button class="btn-reveal" onclick="reveal()">👁 Mostra la soluzione</button>
+</div>
+
+<div class="nav-episodi">
+  ${navLinks}
+</div>
+
+<div class="social-row">
+  <a href="https://www.instagram.com/storiepontederesi" target="_blank">📸 @storiepontederesi</a>
+  <a href="https://www.facebook.com/storiepontederesi" target="_blank">👍 @storiepontederesi</a>
+  <a href="https://storiepontederesi.substack.com/subscribe" target="_blank">✉ Iscriviti</a>
+</div>
+
+<img src="../LogoStoriePontederesi_cruciverba.png" alt="Storie Pontederesi" class="logo">
+
+<script src="../cruciverba.js"><\/script>
+<script>
+${jsBlock}
+<\/script>
+</body>
+</html>`;
+
+  lastFileContent = fullHTML;
+  lastEp = ep;
+
+  // Show output
+  document.getElementById('outputTitle').textContent = `✅ Episodio #${ep} pronto!`;
+  document.getElementById('outputSteps').innerHTML =
+    `Dopo aver scaricato il file:<br>
+    <strong>1.</strong> Crea la cartella <strong><code>${epStr}/</code></strong> nella cartella del progetto<br>
+    <strong>2.</strong> Metti il file scaricato dentro come <strong><code>index.html</code></strong><br>
+    <strong>3.</strong> Aggiungi la card qui sotto nell'archivio (<code>index.html</code>)<br>
+    <strong>4.</strong> <code>git add . && git commit -m "Aggiunto cruciverba #${ep}" && git push</code>`;
+
+  const cardHTML =
+`<a class="card" href="${epStr}/">
+  <span class="card-num">#${ep}</span>
+  <span class="card-label">Gioca →</span>
+</a>`;
+  document.getElementById('cardCode').textContent = cardHTML;
+
+  // Wire download button
+  document.getElementById('btnDownload').onclick = () => {
+    const blob = new Blob([lastFileContent], {type: 'text/html'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'index.html';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+
+  document.getElementById('output').classList.add('visible');
+  document.getElementById('output').scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function copyCard(){
+  navigator.clipboard.writeText(document.getElementById('cardCode').textContent).then(() => {
+    const ok = document.getElementById('copyOk');
+    ok.textContent = 'Copiato!';
+    setTimeout(() => ok.textContent = '', 2500);
+  });
+}
+</script>
+</body>
+</html>
