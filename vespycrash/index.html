@@ -20,15 +20,18 @@
       min-height:100vh;display:flex;flex-direction:column;align-items:center;
       padding:1rem 1rem 2rem;gap:0;user-select:none}
 
-    header{text-align:center;margin-bottom:.6rem}
+    header{text-align:center;margin-bottom:.5rem}
     h1{font-family:'Permanent Marker',cursive;font-size:clamp(26px,7vw,46px);
       color:var(--rosso);text-transform:uppercase;line-height:1.1}
-    .subtitolo{font-size:13px;color:var(--testo);opacity:.75;margin-top:.2rem}
+    .subtitolo{font-size:12px;color:var(--testo);opacity:.7;margin-top:.15rem}
+    .istruzioni{font-size:13px;color:var(--testo);margin-top:.4rem;line-height:1.55;
+      max-width:340px;text-align:center}
+    .istruzioni strong{color:var(--rosso)}
 
     /* HUD */
-    #hud{display:flex;gap:12px;justify-content:center;margin:.6rem 0;flex-wrap:wrap}
+    #hud{display:flex;gap:10px;justify-content:center;margin:.5rem 0;flex-wrap:wrap}
     .hud-box{background:var(--bg);border:2px solid var(--rosso);border-radius:12px;
-      padding:.4rem .9rem;text-align:center;min-width:80px}
+      padding:.35rem .8rem;text-align:center;min-width:76px}
     .hud-label{font-size:10px;font-weight:700;color:var(--rosso);text-transform:uppercase;letter-spacing:.5px}
     .hud-val{font-family:'Permanent Marker',cursive;font-size:22px;color:var(--rosso);line-height:1.2}
     .hud-val.bump{animation:bump .25s ease}
@@ -38,44 +41,54 @@
     #board-wrap{position:relative}
     #board{
       display:grid;grid-template-columns:repeat(7,1fr);gap:4px;
-      width:min(352px,96vw);margin:.4rem auto;
+      width:min(352px,96vw);margin:.3rem auto;
     }
     .cell{
       aspect-ratio:1;background:var(--bg);border-radius:8px;
       display:flex;align-items:center;justify-content:center;
       font-size:clamp(20px,5.5vw,32px);cursor:pointer;
-      transition:transform .12s,background .12s;
       border:2px solid transparent;
+      overflow:hidden;
     }
-    .cell:hover{transform:scale(1.08)}
-    .cell.selected{background:#fce8e2;border-color:var(--rosso);transform:scale(1.12)}
-    .cell.matched{animation:pop-out .35s ease forwards}
+    .cell:hover{filter:brightness(1.06)}
+    .cell.selected{background:#fce8e2;border-color:var(--rosso);transform:scale(1.1)}
+
+    /* Match pop-out */
+    .cell.matched{animation:pop-out .32s ease forwards;pointer-events:none}
     @keyframes pop-out{
       0%{transform:scale(1);opacity:1}
-      40%{transform:scale(1.4);opacity:.9}
+      45%{transform:scale(1.35);opacity:.8}
       100%{transform:scale(0);opacity:0}
     }
-    .cell.new-in{animation:drop-in .25s ease}
-    @keyframes drop-in{
-      0%{transform:translateY(-20px);opacity:0}
-      100%{transform:translateY(0);opacity:1}
+
+    /* Empty slot (after removal, before gravity) */
+    .cell.empty-slot{
+      background:rgba(139,26,47,.07);
+      border:2px dashed rgba(139,26,47,.2);
+    }
+
+    /* Tile fall animation — uses CSS custom property --fall-px */
+    .cell.tile-fall{animation:tile-fall .38s cubic-bezier(.4,0,.6,1) forwards}
+    @keyframes tile-fall{
+      from{transform:translateY(var(--fall-px,0))}
+      to{transform:translateY(0)}
     }
 
     /* Combo toast */
     #combo-toast{
       position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-      font-family:'Permanent Marker',cursive;font-size:32px;color:var(--rosso);
-      pointer-events:none;opacity:0;white-space:nowrap;
+      font-family:'Permanent Marker',cursive;font-size:30px;color:var(--rosso);
+      pointer-events:none;opacity:0;white-space:nowrap;text-shadow:0 2px 8px rgba(0,0,0,.15);
     }
-    #combo-toast.show{animation:combo-anim .7s ease forwards}
+    #combo-toast.show{animation:combo-anim .75s ease forwards}
     @keyframes combo-anim{
-      0%{opacity:0;transform:translate(-50%,-60%) scale(.8)}
-      30%{opacity:1;transform:translate(-50%,-50%) scale(1.2)}
+      0%{opacity:0;transform:translate(-50%,-60%) scale(.7)}
+      30%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}
       70%{opacity:1;transform:translate(-50%,-50%) scale(1)}
-      100%{opacity:0;transform:translate(-50%,-45%) scale(.9)}
+      100%{opacity:0;transform:translate(-50%,-44%) scale(.9)}
     }
 
-    /* Overlay game over */
+    /* Game over overlay */
     #overlay{
       display:none;position:fixed;inset:0;background:rgba(139,26,47,.55);
       align-items:center;justify-content:center;z-index:10;
@@ -85,24 +98,15 @@
       background:var(--bg);border:3px solid var(--rosso);border-radius:20px;
       padding:2rem 2.2rem;text-align:center;max-width:300px;width:90%;
     }
-    #gameover-box h2{font-family:'Permanent Marker',cursive;color:var(--rosso);
-      font-size:28px;margin-bottom:.5rem}
+    #gameover-box h2{font-family:'Permanent Marker',cursive;color:var(--rosso);font-size:28px;margin-bottom:.5rem}
     #gameover-box p{font-size:14px;margin-bottom:.3rem;color:var(--testo)}
-    .score-final{font-family:'Permanent Marker',cursive;font-size:40px;
-      color:var(--rosso);margin:.4rem 0}
-    .btn{display:inline-block;margin-top:.8rem;padding:.55rem 1.4rem;
-      border-radius:999px;border:2px solid var(--rosso);background:var(--rosso);
-      color:var(--bg);font-weight:700;font-size:14px;cursor:pointer;
-      text-decoration:none;transition:opacity .15s}
+    .score-final{font-family:'Permanent Marker',cursive;font-size:40px;color:var(--rosso);margin:.4rem 0}
+    .btn{display:inline-block;margin-top:.8rem;padding:.55rem 1.4rem;border-radius:999px;
+      border:2px solid var(--rosso);background:var(--rosso);color:var(--bg);
+      font-weight:700;font-size:14px;cursor:pointer;text-decoration:none;transition:opacity .15s}
     .btn:hover{opacity:.85}
     .btn-ghost{background:transparent;color:var(--rosso);margin-left:8px}
     .btn-ghost:hover{background:var(--rosso);color:var(--bg)}
-
-    /* Legenda */
-    #legenda{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;
-      max-width:352px;margin:.4rem auto .6rem;font-size:11px;color:var(--testo)}
-    .leg-item{display:flex;align-items:center;gap:3px;background:var(--bg);
-      border-radius:8px;padding:2px 6px;border:1px solid #ddc8c0}
 
     /* Nav */
     .nav{font-size:13px;text-align:center;margin-top:.6rem}
@@ -114,7 +118,6 @@
     .social-row a:hover{text-decoration:underline}
     .logo{width:44px;opacity:.9;margin-top:.3rem}
 
-    /* No-moves notice */
     #no-moves{display:none;font-size:12px;font-weight:700;color:var(--rosso);
       text-align:center;margin-bottom:.3rem}
   </style>
@@ -123,7 +126,12 @@
 
 <header>
   <h1>Vespy Crash</h1>
-  <p class="subtitolo">Il match-3 di Storie Pontederesi · 25 mosse</p>
+  <p class="subtitolo">Il match-3 di Storie Pontederesi</p>
+  <p class="istruzioni">
+    Clicca un'emoji, poi clicca quella adiacente per scambiarle.<br>
+    Allinea <strong>3 o più uguali</strong> in riga o colonna per farle sparire.<br>
+    Le combo in cascata valgono di più! Hai <strong>25 mosse</strong>.
+  </p>
 </header>
 
 <div id="hud">
@@ -148,19 +156,10 @@
   <div id="combo-toast"></div>
 </div>
 
-<div id="legenda">
-  <div class="leg-item">🛵 Vespa</div>
-  <div class="leg-item">🌉 Ponte</div>
-  <div class="leg-item">🥊 Guantone</div>
-  <div class="leg-item">🌀 Rotonda</div>
-  <div class="leg-item">⚙️ Piaggio</div>
-  <div class="leg-item">🌻 Toscana</div>
-</div>
-
 <div id="overlay">
   <div id="gameover-box">
     <h2>Fine mosse!</h2>
-    <p>Punteggio</p>
+    <p>Punteggio finale</p>
     <div class="score-final" id="final-score">0</div>
     <p id="record-msg"></p>
     <div>
@@ -181,6 +180,7 @@
 const EMOJIS = ["🛵","🌉","🥊","🌀","⚙️","🌻"];
 const SIZE = 7;
 const MAX_MOVES = 25;
+const GAP_PX = 4;
 
 let grid = [];
 let selected = null;
@@ -228,6 +228,32 @@ function findMatches() {
   return matched;
 }
 
+// ── Fall distance tracking ────────────────────────────────────────────────────
+// Returns map "r,c" → rows fallen (positive = fell down, SIZE+N = new from top)
+function computeFallDistances(gridBefore) {
+  const fallDist = {};
+  for(let c = 0; c < SIZE; c++) {
+    // Non-null tiles collected from bottom to top
+    const tiles = [];
+    for(let r = SIZE - 1; r >= 0; r--) {
+      if(gridBefore[r][c] !== null) tiles.push(r);
+    }
+    // tiles[0] = bottommost non-null, moves to row SIZE-1
+    // tiles[i] moves to row SIZE-1-i
+    for(let i = 0; i < tiles.length; i++) {
+      const newRow = SIZE - 1 - i;
+      const oldRow = tiles[i];
+      fallDist[`${newRow},${c}`] = newRow - oldRow; // 0 if didn't move
+    }
+    // New tiles fill the top rows
+    const numNew = SIZE - tiles.length;
+    for(let r = 0; r < numNew; r++) {
+      fallDist[`${r},${c}`] = SIZE + (numNew - r); // large = far above board
+    }
+  }
+  return fallDist;
+}
+
 // ── Gravity + refill ──────────────────────────────────────────────────────────
 function applyGravity() {
   for(let c = 0; c < SIZE; c++) {
@@ -244,12 +270,18 @@ function applyGravity() {
   }
 }
 
+// ── Cell pixel size ───────────────────────────────────────────────────────────
+function getCellUnit() {
+  const boardW = document.getElementById("board").getBoundingClientRect().width || 352;
+  const cellW = (boardW - GAP_PX * (SIZE - 1)) / SIZE;
+  return cellW + GAP_PX; // px per row (cell + gap)
+}
+
 // ── Valid moves check ─────────────────────────────────────────────────────────
 function hasValidMoves() {
-  const dirs = [[0,1],[1,0]];
   for(let r = 0; r < SIZE; r++) {
     for(let c = 0; c < SIZE; c++) {
-      for(const [dr, dc] of dirs) {
+      for(const [dr, dc] of [[0,1],[1,0]]) {
         const nr = r+dr, nc = c+dc;
         if(nr >= SIZE || nc >= SIZE) continue;
         [grid[r][c], grid[nr][nc]] = [grid[nr][nc], grid[r][c]];
@@ -262,32 +294,37 @@ function hasValidMoves() {
   return false;
 }
 
-function shuffleIfNeeded() {
-  if(!hasValidMoves()) {
-    initGrid();
-    document.getElementById("no-moves").style.display = "block";
-    setTimeout(() => document.getElementById("no-moves").style.display = "none", 2500);
-  }
-}
-
-// ── Delay helper ─────────────────────────────────────────────────────────────
 const delay = ms => new Promise(r => setTimeout(r, ms));
 
-// ── Render ────────────────────────────────────────────────────────────────────
-function renderGrid(matchedSet = new Set(), newCells = new Set()) {
+// ── Render full grid ──────────────────────────────────────────────────────────
+function renderGrid(matchedSet = new Set(), fallDist = null) {
   const board = document.getElementById("board");
+  const unitPx = getCellUnit();
   board.innerHTML = "";
   for(let r = 0; r < SIZE; r++) {
     for(let c = 0; c < SIZE; c++) {
       const cell = document.createElement("div");
       cell.className = "cell";
       const key = `${r},${c}`;
-      if(matchedSet.has(key)) cell.classList.add("matched");
-      if(newCells.has(key)) cell.classList.add("new-in");
-      cell.textContent = EMOJIS[grid[r][c]] ?? "";
-      cell.dataset.r = r; cell.dataset.c = c;
-      if(selected && selected.r === r && selected.c === c) cell.classList.add("selected");
-      cell.addEventListener("click", () => handleClick(r, c));
+      const val = grid[r][c];
+
+      if(val !== null) {
+        cell.textContent = EMOJIS[val];
+        cell.dataset.r = r; cell.dataset.c = c;
+        if(matchedSet.has(key)) {
+          cell.classList.add("matched");
+        } else if(fallDist) {
+          const dist = fallDist[key];
+          if(dist !== undefined && dist > 0) {
+            cell.style.setProperty("--fall-px", `${-dist * unitPx}px`);
+            cell.classList.add("tile-fall");
+          }
+        }
+        if(selected?.r === r && selected?.c === c) cell.classList.add("selected");
+        cell.addEventListener("click", () => handleClick(r, c));
+      } else {
+        cell.classList.add("empty-slot");
+      }
       board.appendChild(cell);
     }
   }
@@ -302,9 +339,7 @@ function updateHUD() {
 
 function bumpEl(id) {
   const el = document.getElementById(id);
-  el.classList.remove("bump");
-  void el.offsetWidth;
-  el.classList.add("bump");
+  el.classList.remove("bump"); void el.offsetWidth; el.classList.add("bump");
 }
 
 // ── Combo toast ───────────────────────────────────────────────────────────────
@@ -313,109 +348,94 @@ function showCombo(cascade) {
   const msgs = ["Combo! 🔥","Super! 🔥🔥","Mega! 💥","Incredibile! ⚡","LEGGENDARIO! 🛵💨"];
   const toast = document.getElementById("combo-toast");
   toast.textContent = msgs[Math.min(cascade - 1, msgs.length - 1)];
-  toast.classList.remove("show");
-  void toast.offsetWidth;
-  toast.classList.add("show");
+  toast.classList.remove("show"); void toast.offsetWidth; toast.classList.add("show");
 }
 
-// ── Match processing (recursive for cascades) ─────────────────────────────────
+// ── Match processing with cascade animation ───────────────────────────────────
 async function processMatches(cascade = 0) {
   const matched = findMatches();
   if(matched.size === 0) return false;
 
-  const points = matched.size * 10 * (cascade + 1);
-  score += points;
+  score += matched.size * 10 * (cascade + 1);
+  updateHUD();
   bumpEl("score-val");
   showCombo(cascade);
 
-  // Show matched animation
+  // 1. Animate matched tiles popping out
   renderGrid(matched);
-  await delay(380);
+  await delay(340);
 
-  // Nullify matched
+  // 2. Nullify matched cells
   for(const key of matched) {
     const [r, c] = key.split(",").map(Number);
     grid[r][c] = null;
   }
 
-  // Gravity + refill, track new cells
-  const prevGrid = grid.map(row => [...row]);
+  // 3. Show empty slots briefly so the player sees the gaps
+  renderGrid();
+  await delay(160);
+
+  // 4. Compute fall distances BEFORE applying gravity
+  const gridSnapshot = grid.map(row => [...row]);
+  const fallDist = computeFallDistances(gridSnapshot);
+
+  // 5. Apply gravity (fill nulls from top)
   applyGravity();
-  const newCells = new Set();
-  for(let r = 0; r < SIZE; r++)
-    for(let c = 0; c < SIZE; c++)
-      if(prevGrid[r][c] === null) newCells.add(`${r},${c}`);
 
-  renderGrid(new Set(), newCells);
-  await delay(280);
+  // 6. Render with fall animation
+  renderGrid(new Set(), fallDist);
+  await delay(440);
 
+  // 7. Check for cascades
   await processMatches(cascade + 1);
   return true;
 }
 
 // ── Swap logic ────────────────────────────────────────────────────────────────
-function isAdjacent(r1, c1, r2, c2) {
-  return (Math.abs(r1-r2) + Math.abs(c1-c2)) === 1;
-}
-
 async function trySwap(r1, c1, r2, c2) {
   animating = true;
   selected = null;
 
   [grid[r1][c1], grid[r2][c2]] = [grid[r2][c2], grid[r1][c1]];
   renderGrid();
-  await delay(120);
+  await delay(110);
 
   const hadMatch = await processMatches();
 
   if(!hadMatch) {
-    // Swap back — invalid move, don't consume a move
     [grid[r1][c1], grid[r2][c2]] = [grid[r2][c2], grid[r1][c1]];
     renderGrid();
   } else {
     movesLeft--;
     updateHUD();
     bumpEl("moves-val");
-    shuffleIfNeeded();
-    renderGrid();
-    if(movesLeft === 0) {
-      await delay(400);
-      endGame();
+    if(!hasValidMoves()) {
+      initGrid();
+      document.getElementById("no-moves").style.display = "block";
+      setTimeout(() => document.getElementById("no-moves").style.display = "none", 2500);
     }
+    renderGrid();
+    if(movesLeft === 0) { await delay(400); endGame(); }
   }
 
   animating = false;
 }
 
-// ── Click handler ─────────────────────────────────────────────────────────────
 function handleClick(r, c) {
   if(animating || movesLeft === 0) return;
-  if(!selected) {
-    selected = {r, c};
-    renderGrid();
-    return;
-  }
-  if(selected.r === r && selected.c === c) {
-    selected = null;
-    renderGrid();
-    return;
-  }
-  if(isAdjacent(selected.r, selected.c, r, c)) {
+  if(!selected) { selected = {r,c}; renderGrid(); return; }
+  if(selected.r === r && selected.c === c) { selected = null; renderGrid(); return; }
+  if(Math.abs(r-selected.r) + Math.abs(c-selected.c) === 1) {
     trySwap(selected.r, selected.c, r, c);
   } else {
-    selected = {r, c};
-    renderGrid();
+    selected = {r,c}; renderGrid();
   }
 }
 
-// ── Game over ─────────────────────────────────────────────────────────────────
+// ── Game over / restart ───────────────────────────────────────────────────────
 function endGame() {
-  let isRecord = false;
-  if(score > bestScore) {
-    bestScore = score;
-    localStorage.setItem("vespycrash_best", bestScore);
-    isRecord = true;
-  }
+  const isRecord = score > bestScore;
+  if(isRecord) { bestScore = score; localStorage.setItem("vespycrash_best", bestScore); }
   document.getElementById("final-score").textContent = score;
   document.getElementById("record-msg").textContent = isRecord
     ? "🏆 Nuovo record! Boia che giocatore!"
@@ -423,22 +443,13 @@ function endGame() {
   document.getElementById("overlay").classList.add("show");
 }
 
-// ── Restart ───────────────────────────────────────────────────────────────────
 function restart() {
   document.getElementById("overlay").classList.remove("show");
-  score = 0;
-  movesLeft = MAX_MOVES;
-  selected = null;
-  animating = false;
-  initGrid();
-  updateHUD();
-  renderGrid();
+  score = 0; movesLeft = MAX_MOVES; selected = null; animating = false;
+  initGrid(); updateHUD(); renderGrid();
 }
 
-// ── Init ──────────────────────────────────────────────────────────────────────
-initGrid();
-updateHUD();
-renderGrid();
+initGrid(); updateHUD(); renderGrid();
 </script>
 </body>
 </html>
